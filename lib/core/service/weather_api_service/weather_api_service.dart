@@ -1,25 +1,35 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:f_weather/core/model/data_state.dart';
 import 'package:f_weather/core/model/location_model.dart';
 import 'package:f_weather/core/model/weather_model.dart';
-import 'package:f_weather/core/utils/constants/app_constants_keys.dart';
-import 'package:f_weather/core/utils/system_functions/app_system_functions.dart';
 import 'package:http/http.dart' as http;
 
 import 'weather_api_response_error.dart';
 
 class WeatherApiService {
-  const WeatherApiService();
+  const WeatherApiService({
+    required String apiKey,
+  }) : _apiKey = apiKey;
+
+  final String _apiKey;
+
+  static const _baseUrl = 'api.weatherapi.com';
+  static const _locationsPath = '/v1/search.json';
+  static const _currentPath = '/v1/current.json';
 
   Future<DataState<List<LocationModel>>> loadLocationListBySearchQuery({
     required String searchQuery,
   }) async {
-    var url =
-        'https://api.weatherapi.com/v1/search.json?key=${AppConstantsKeys.apiKey}&q=$searchQuery&lang=ru';
+    final url = Uri.https(_baseUrl, _locationsPath, {
+      'key': _apiKey,
+      'q': searchQuery,
+      'lang': 'ru',
+    });
 
     try {
-      var response = await http.get(Uri.parse(url));
+      var response = await http.get(url);
 
       if (response.statusCode == 200) {
         var parsedResponseBody = jsonDecode(response.body);
@@ -37,6 +47,7 @@ class WeatherApiService {
         message: '',
       );
     } catch (error) {
+      log(error.toString());
       return DataFailed(message: error.toString());
     }
   }
@@ -44,11 +55,14 @@ class WeatherApiService {
   Future<DataState<WeatherModel>> loadWeather({
     required String searchQuery,
   }) async {
-    var url =
-        'https://api.weatherapi.com/v1/current.json?key=${AppConstantsKeys.apiKey}&q=$searchQuery&lang=ru';
+    var url = Uri.https(_baseUrl, _currentPath, {
+      'key': _apiKey,
+      'q': searchQuery,
+      'lang': 'ru',
+    });
 
     try {
-      var response = await http.get(Uri.parse(url)).timeout(
+      var response = await http.get(url).timeout(
         const Duration(seconds: 30),
         onTimeout: () {
           return http.Response(
@@ -59,6 +73,7 @@ class WeatherApiService {
       );
 
       if (response.statusCode == 200) {
+        log(response.body);
         var weatherModel = WeatherModel.fromJson(response.body);
 
         return DataSuccess(data: weatherModel);
@@ -68,7 +83,7 @@ class WeatherApiService {
         message: WeatherApiResponseError.fromJson(response.body).errorMessage(),
       );
     } catch (error) {
-      AppSystemFunctions.showSnackBarGlobal(content: error.toString());
+      log(error.toString());
       return DataFailed(message: error.toString());
     }
   }

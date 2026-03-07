@@ -1,5 +1,5 @@
 final class AppConstantsKeys {
   AppConstantsKeys._();
 
-  static const String apiKey = 'bfb3853c334542798ae102843250711';
+  static const String weatherApiApiKey = 'WEATHER_API_API_KEY';
 }

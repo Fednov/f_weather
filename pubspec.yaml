@@ -1,7 +1,7 @@
 name: f_weather
 description: "An example of the weather app on Flutter"
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.1
 
 environment:
   sdk: ^3.5.3
@@ -12,16 +12,21 @@ dependencies:
   collection: 1.18.0
   # For making HTTP requests
   http: 1.5.0
+  # Cancelable async operations 
+  async: 2.11.0
   # State management and Depency injection
   flutter_riverpod: 2.6.1
   # Date format and localization
   intl: 0.20.2  
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-
+  mocktail: 1.0.4
+  state_notifier_test: 0.0.10
+  fake_async: 1.3.1
   # Generate app logo
   flutter_launcher_icons: 0.14.4
 
